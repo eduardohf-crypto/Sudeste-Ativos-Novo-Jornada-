@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico PPR — Fusan · Viva Mais Previdência</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#003366;--blue-mid:#0055A4;--blue-light:#ddeaf7;
+  --orange:#F47920;--orange-dark:#C4601A;
+  --green:#1a6e1a;--green-light:#e8f5e9;
+  --red:#c0392b;--red-light:#fdecea;
+  --text:#0f1f33;--text-mid:#4a5a6e;--text-muted:#8a98a8;
+  --border:#dde4ec;--bg:#f2f6fb;--white:#fff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;display:flex;flex-direction:column;align-items:center}
+.site-header{width:100%;background:var(--blue);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+.hdr-fusan{font-size:22px;font-weight:700;color:#fff;letter-spacing:2px}
+.hdr-fusan-sub{font-size:9px;color:rgba(255,255,255,.6);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px}
+.hdr-vmp{background:rgba(255,255,255,.1);border-radius:10px;padding:8px 14px;text-align:right}
+.hdr-vmp-name{font-size:13px;font-weight:600;color:#fff}
+.hdr-vmp-sub{font-size:9px;color:rgba(255,255,255,.55);margin-top:2px}
+.wrap{width:100%;max-width:540px;padding:2rem 1.25rem 4rem}
+.screen{display:none}
+.screen.active{display:block;animation:fadeSlide .35s ease}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.progress-wrap{margin-bottom:1.5rem}
+.progress-track{display:flex;gap:4px;margin-bottom:6px}
+.progress-step{flex:1;height:4px;border-radius:2px;background:var(--border);transition:background .3s}
+.progress-step.done{background:var(--blue)}
+.progress-step.active{background:var(--orange)}
+.progress-label{font-size:11px;color:var(--text-muted)}
+.card{background:var(--white);border-radius:18px;padding:1.75rem 1.5rem;border:1px solid var(--border);margin-bottom:1rem}
+.q-eyebrow{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:.75rem}
+.q-text{font-family:'DM Serif Display',serif;font-size:21px;color:var(--text);line-height:1.3;margin-bottom:1.5rem}
+.ppr-destaque{background:var(--blue-light);border-radius:14px;padding:1.5rem;margin-bottom:1rem;text-align:center}
+.ppr-destaque-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--blue-mid);margin-bottom:.5rem}
+.ppr-destaque-val{font-size:36px;font-weight:700;color:var(--blue);line-height:1;margin-bottom:6px}
+.ppr-destaque-sub{font-size:12px;color:var(--text-muted)}
+.options{display:flex;flex-direction:column;gap:6px}
+.opt{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:13px 16px;font-size:13px;color:var(--text);cursor:pointer;transition:all .15s;line-height:1.45;text-align:left;width:100%;font-family:'DM Sans',sans-serif;display:flex;align-items:flex-start;gap:10px}
+.opt:hover{border-color:var(--blue-mid);background:var(--blue-light);color:var(--blue)}
+.opt.selected{border-color:var(--blue);background:var(--blue-light);color:var(--blue);font-weight:600}
+.opt-num{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:50%;background:var(--border);color:var(--text-muted);font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+.opt.selected .opt-num{background:var(--blue);color:#fff}
+.btn-primary{width:100%;background:var(--orange);color:#fff;border:none;border-radius:12px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s;margin-top:.5rem}
+.btn-primary:hover{background:var(--orange-dark)}
+.btn-primary.blue{background:var(--blue)}
+.btn-primary.blue:hover{background:var(--blue-mid)}
+.btn-back{background:none;border:1.5px solid var(--border);color:var(--text-muted);border-radius:10px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:.5rem;transition:all .15s;width:100%}
+.btn-back:hover{border-color:var(--blue-mid);color:var(--blue)}
+.perfil-banner{border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1.25rem}
+.perfil-banner.critico{background:#fdecea;border:1px solid #f5b7b1}
+.perfil-banner.atencao{background:#fef9e7;border:1px solid #f9d78e}
+.perfil-banner.positivo{background:var(--green-light);border:1px solid #a9dfbf}
+.perfil-banner-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+.perfil-banner.critico .perfil-banner-label{color:#c0392b}
+.perfil-banner.atencao .perfil-banner-label{color:#d68910}
+.perfil-banner.positivo .perfil-banner-label{color:#1e8449}
+.perfil-banner-text{font-size:13px;line-height:1.65;color:var(--text-mid)}
+.custo-card{background:var(--red-light);border:1px solid #f5b7b1;border-radius:14px;padding:1.5rem;margin-bottom:1rem}
+.custo-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#c0392b;margin-bottom:.75rem}
+.custo-label{font-size:13px;color:#922b21;line-height:1.5;margin-bottom:1rem}
+.grafico-wrap{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:1rem}
+.grafico-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem}
+.grafico-bars{display:flex;flex-direction:column;gap:10px;margin-bottom:1rem}
+.grafico-row{display:flex;align-items:center;gap:10px}
+.grafico-label{font-size:12px;color:var(--text-mid);width:90px;flex-shrink:0}
+.grafico-bar-wrap{flex:1;background:var(--bg);border-radius:4px;height:22px;overflow:hidden}
+.grafico-bar{height:100%;border-radius:4px;transition:width 1s ease;width:0}
+.grafico-bar.aportes{background:var(--blue-mid)}
+.grafico-bar.rendimento{background:var(--green)}
+.grafico-val{font-size:12px;font-weight:700;color:var(--text);white-space:nowrap}
+.grafico-total{display:flex;justify-content:space-between;align-items:center;background:var(--blue);border-radius:10px;padding:10px 14px}
+.grafico-total-label{font-size:12px;color:rgba(255,255,255,.8)}
+.grafico-total-val{font-size:18px;font-weight:700;color:#fff}
+.tabela-ajustavel-card{padding:1.35rem 1.25rem}
+.tabela-controles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:1rem 0 .85rem}
+.tabela-control{background:rgba(255,255,255,.72);border:1px solid rgba(192,57,43,.16);border-radius:12px;padding:.75rem .8rem}
+.tabela-control-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:.45rem;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#7a2e0e}
+.tabela-control-top strong{font-size:16px;color:var(--blue);white-space:nowrap;letter-spacing:0;text-transform:none}
+.tabela-control input[type=range]{height:4px;margin:0 0 3px;background:#f4c897}
+.tabela-control input[type=range]::-webkit-slider-thumb{width:18px;height:18px;background:var(--blue)}
+.tabela-control-meta{font-size:10px;color:#7a4a10;line-height:1.35;text-align:center}
+.tabela-control-meta span{font-weight:700;color:var(--orange)}
+input[type=range]{width:100%;height:6px;border-radius:3px;outline:none;cursor:pointer;-webkit-appearance:none;background:var(--border);margin-bottom:6px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--blue);cursor:pointer;box-shadow:0 2px 8px rgba(0,51,102,.3)}
+.disclaimer{font-size:10px;color:var(--text-muted);line-height:1.6;padding:10px 0}
+.disclaimer.compact{font-size:9.5px;padding:4px 2px 0;text-align:center}
+.wpp-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#25D366;color:#fff;border:none;border-radius:12px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:.5rem}
+.wpp-btn:hover{background:#1da851}
+.wpp-icon{width:20px;height:20px;flex-shrink:0}
+.footer{width:100%;text-align:center;padding:1.5rem;font-size:11px;color:var(--text-muted);line-height:1.7}
+.card-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:linear-gradient(135deg,#f0287a,#833ab4);color:#fff;border:none;border-radius:12px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:.5rem;transition:opacity .15s}
+.card-btn:hover{opacity:.88}
+.sonho-hero{background:var(--white);border-radius:18px;padding:2rem 1.5rem;border:1px solid var(--border);margin-bottom:1rem;text-align:center}
+.sonho-eyebrow{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--orange);margin-bottom:.75rem}
+.sonho-title{font-family:'DM Serif Display',serif;font-size:26px;color:var(--blue);line-height:1.25;margin-bottom:.5rem}
+.sonho-sub{font-size:13px;color:var(--text-muted);margin-bottom:1.5rem}
+.sonho-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+.sonho-opt{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:1rem;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;transition:all .15s;text-align:center;font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;align-items:center;gap:8px}
+.sonho-opt:hover{border-color:var(--blue-mid);background:var(--blue-light);color:var(--blue)}
+.sonho-opt.selected{border-color:var(--blue);background:var(--blue-light);color:var(--blue);font-weight:700}
+.sonho-emoji{font-size:28px}
+.cidade-hero{background:var(--white);border-radius:18px;padding:2rem 1.5rem;border:1px solid var(--border);margin-bottom:1rem}
+.cidade-eyebrow{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--orange);margin-bottom:.75rem}
+.cidade-title{font-family:'DM Serif Display',serif;font-size:28px;color:var(--blue);line-height:1.25;margin-bottom:.5rem}
+.cidade-sub{font-size:13px;color:var(--text-muted);margin-bottom:1.5rem}
+.cidade-opt{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:13px 18px;font-size:14px;font-weight:500;color:var(--text);cursor:pointer;transition:all .15s;text-align:left;width:100%;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.cidade-opt:hover{border-color:var(--blue-mid);background:var(--blue-light);color:var(--blue)}
+.cidade-opt.selected{border-color:var(--blue);background:var(--blue-light);color:var(--blue);font-weight:700}
+.card-preview-wrap{border-radius:18px;overflow:hidden;margin-bottom:1rem;box-shadow:0 8px 32px rgba(0,51,102,.18)}
+.card-preview-wrap img{width:100%;display:block}
+.share-btn{display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;width:100%}
+.share-btn.instagram{background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff}
+.share-btn.instagram:hover{opacity:.9}
+.share-dica{font-size:11px;color:var(--text-muted);text-align:center;line-height:1.6;padding:8px 0}
+.result-step{display:none}
+.result-step.active{display:block}
+.result-actions{display:grid;grid-template-columns:1fr;gap:8px;margin-top:.75rem}
+.result-actions.two{grid-template-columns:1fr 1fr}
+.result-actions .btn-primary,.result-actions .btn-back{margin-top:0}
+.result-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+.result-mini{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1rem;text-align:center}
+.result-mini-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:6px}
+.result-mini-val{font-size:20px;font-weight:700;color:var(--blue);line-height:1.15}
+.result-intro-card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:1.5rem;margin-bottom:1rem}
+.result-intro-title{font-family:'DM Serif Display',serif;font-size:24px;line-height:1.25;color:var(--blue);margin-bottom:.5rem}
+.result-intro-text{font-size:13px;color:var(--text-mid);line-height:1.6}
+@media(max-width:480px){.q-text{font-size:19px}.sonho-grid{grid-template-columns:1fr 1fr}.tabela-controles{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div><div class="hdr-fusan">FUSAN</div><div class="hdr-fusan-sub">Fundação Sanepar</div></div>
+  <div class="hdr-vmp"><div class="hdr-vmp-name">Viva Mais Previdência</div><div class="hdr-vmp-sub">Diagnóstico PPR</div></div>
+</header>
+
+<div class="wrap">
+
+<!-- S0: INTRO -->
+<div class="screen active" id="s0">
+  <div style="background:linear-gradient(160deg,#001f4d 0%,#003366 60%,#0a4a8a 100%);border-radius:22px;padding:3rem 2rem 2.5rem;text-align:center;margin-bottom:1rem;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:rgba(244,121,32,.08);border-radius:50%"></div>
+    <div style="position:absolute;bottom:-30px;left:-30px;width:120px;height:120px;background:rgba(255,255,255,.04);border-radius:50%"></div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:1.25rem">Fusan · Diagnóstico PPR</div>
+    <h1 style="font-family:'DM Serif Display',serif;font-size:28px;font-weight:400;color:#fff;line-height:1.4;letter-spacing:.5px;margin-bottom:1rem">Seu PPR pode trabalhar<br>por <span style="color:#F47920;font-style:italic">você.</span></h1>
+    <p style="font-size:14px;color:rgba(255,255,255,.7);line-height:1.75;margin-bottom:2rem">Responda 2 perguntas e descubra o quanto o seu PPR pode render investido no Viva Mais Previdência.</p>
+    <div style="background:rgba(255,255,255,.08);border-radius:14px;padding:1.25rem;margin-bottom:2rem">
+      <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:1.5px;font-weight:700">Valor do seu PPR</div>
+      <div style="font-size:36px;font-weight:700;color:#fff;line-height:1">R$ 28.482,56</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:6px">Parcela única · aporte imediato</div>
+    </div>
+    <button style="width:100%;background:#F47920;color:#fff;border:none;border-radius:12px;padding:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="irPara(5)">Começar o diagnóstico →</button>
+  </div>
+</div>
+
+<!-- S5: PLANO -->
+<div class="screen" id="s5">
+  <div class="progress-wrap">
+    <div class="progress-track">
+      <div class="progress-step active"></div><div class="progress-step"></div>
+    </div>
+    <div class="progress-label">Pergunta 1 de 2</div>
+  </div>
+  <div class="card">
+    <div class="q-eyebrow">Pergunta 1 de 2</div>
+    <div class="q-text">Qual é o seu plano para o PPR deste ano?</div>
+    <div class="options" id="opts5">
+      <button class="opt" onclick="selecionarOpt(5,1,this)"><span class="opt-num">1</span>Nenhum plano — provavelmente vai seguir o mesmo caminho dos anos anteriores</button>
+      <button class="opt" onclick="selecionarOpt(5,2,this)"><span class="opt-num">2</span>Quero usar para pagar dívidas ou cobrir despesas que estão pendentes</button>
+      <button class="opt" onclick="selecionarOpt(5,3,this)"><span class="opt-num">3</span>Penso em guardar uma parte, mas ainda não decidi onde nem quanto</button>
+      <button class="opt" onclick="selecionarOpt(5,4,this)"><span class="opt-num">4</span>Já decidi investir — quero colocar no Viva Mais Previdência</button>
+    </div>
+  </div>
+  <button class="btn-back" onclick="irPara(0)">Voltar</button>
+</div>
+
+<!-- S6: IMPOSTO DE RENDA -->
+<div class="screen" id="s6">
+  <div class="progress-wrap">
+    <div class="progress-track">
+      <div class="progress-step done"></div><div class="progress-step active"></div>
+    </div>
+    <div class="progress-label">Pergunta 2 de 2</div>
+  </div>
+  <div class="card">
+    <div class="q-eyebrow">Pergunta 2 de 2</div>
+    <div class="q-text">Qual é a sua faixa de Imposto de Renda?</div>
+    <div class="options" id="opts6">
+      <button class="opt" onclick="selecionarOptIR(0,this)"><span class="opt-num">1</span>Isento</button>
+      <button class="opt" onclick="selecionarOptIR(1,this)"><span class="opt-num">2</span>7,5%</button>
+      <button class="opt" onclick="selecionarOptIR(2,this)"><span class="opt-num">3</span>15%</button>
+      <button class="opt" onclick="selecionarOptIR(3,this)"><span class="opt-num">4</span>22,5%</button>
+      <button class="opt" onclick="selecionarOptIR(4,this)"><span class="opt-num">5</span>27,5%</button>
+    </div>
+  </div>
+  <button class="btn-back" onclick="irPara(5)">Voltar</button>
+</div>
+
+<!-- S6B: ESCOLHA DO SONHO -->
+<div class="screen" id="s6b">
+  <div class="progress-wrap">
+    <div class="progress-track">
+      <div class="progress-step done"></div><div class="progress-step done"></div>
+    </div>
+    <div class="progress-label">Quase lá!</div>
+  </div>
+  <div class="sonho-hero">
+    <div class="sonho-eyebrow">Uma pergunta final</div>
+    <div class="sonho-title">O que você quer construir com esse dinheiro?</div>
+    <p class="sonho-sub">Escolha o que faz mais sentido para você agora.</p>
+    <div class="sonho-grid">
+      <button class="sonho-opt" onclick="selecionarSonho('viagem',this)"><span class="sonho-emoji">✈️</span>Uma viagem inesquecível com a família</button>
+      <button class="sonho-opt" onclick="selecionarSonho('imovel',this)"><span class="sonho-emoji">🏠</span>Entrada de um imóvel próprio</button>
+      <button class="sonho-opt" onclick="selecionarSonho('educacao',this)"><span class="sonho-emoji">🎓</span>Educação de qualidade para os filhos</button>
+      <button class="sonho-opt" onclick="selecionarSonho('reserva',this)"><span class="sonho-emoji">🛡️</span>Uma reserva que traz paz de espírito</button>
+      <button class="sonho-opt" onclick="selecionarSonho('familia',this)"><span class="sonho-emoji">👨‍👩‍👧</span>Ajudar alguém que você ama</button>
+      <button class="sonho-opt" onclick="selecionarSonho('futuro',this)"><span class="sonho-emoji">🌱</span>Construir um futuro mais tranquilo</button>
+    </div>
+  </div>
+  <button class="btn-back" onclick="irPara(6)">← Voltar</button>
+</div>
+
+<!-- S7: RESULTADO -->
+<div class="screen" id="s7">
+
+  <!-- Revelação -->
+  <div class="result-step active" id="result-step-rev">
+    <div style="background:linear-gradient(160deg,#001f4d 0%,#003366 100%);border-radius:22px;padding:3rem 2rem;text-align:center;margin-bottom:1rem;min-height:380px;display:flex;flex-direction:column;align-items:center;justify-content:center">
+      <div style="font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:1.5rem" id="rev-label">Com 100% do seu PPR investido por 10 anos</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:.75rem">você poderia acumular</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:52px;font-weight:700;color:#fff;line-height:1;margin-bottom:.5rem" id="rev-total">R$ 0</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:2.5rem">estimativa bruta · 10% a.a.</div>
+      <button style="background:#F47920;color:#fff;border:none;border-radius:12px;padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="irParaResultado(1)">Ver o detalhamento →</button>
+      <button style="background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);border-radius:10px;padding:10px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:12px" onclick="irPara(6)">← Voltar</button>
+    </div>
+  </div>
+
+  <!-- Passo 1: perfil -->
+  <div class="result-step" id="result-step-0" style="display:none">
+    <div class="result-intro-card">
+      <div class="result-intro-title">Primeiro, entenda o seu perfil.</div>
+      <div class="result-intro-text">Com base nas respostas, o diagnóstico mostra como o PPR vem sendo usado e qual oportunidade existe para transformar esse dinheiro em patrimônio.</div>
+    </div>
+    <div id="perfil-banner" class="perfil-banner critico">
+      <div class="perfil-banner-label" id="perfil-label"></div>
+      <div class="perfil-banner-text" id="perfil-text"></div>
+    </div>
+    <div class="result-mini-grid" style="grid-template-columns:1fr">
+      <div class="result-mini">
+        <div class="result-mini-label">Valor do PPR</div>
+        <div class="result-mini-val" id="result-abono-anual">R$ 28.482,56</div>
+      </div>
+    </div>
+    <div class="result-actions">
+      <button class="btn-primary blue" onclick="mostrarRevelacao()">Ver minha simulação</button>
+      <button class="btn-back" onclick="irPara(6)">Voltar para ajustar respostas</button>
+    </div>
+  </div>
+
+  <!-- Passo 2: simulação -->
+  <div class="result-step" id="result-step-1">
+    <div class="custo-card tabela-ajustavel-card">
+      <div class="custo-title">O que você poderia ter</div>
+      <div class="custo-label" id="custo-label"></div>
+      <div class="tabela-controles">
+        <div class="tabela-control">
+          <div class="tabela-control-top">
+            <span>Percentual do PPR</span>
+            <strong><span id="pct-num">100</span>%</strong>
+          </div>
+          <input type="range" id="pct-slider" min="10" max="100" value="100" step="5" oninput="atualizarPct()">
+          <div class="tabela-control-meta" id="pct-info">Equivale a <span id="pct-valor-reais">R$ 28.482,56</span></div>
+        </div>
+        <div class="tabela-control">
+          <div class="tabela-control-top">
+            <span>Prazo da simulação</span>
+            <strong><span id="proj-anos-num">10</span> anos</strong>
+          </div>
+          <input type="range" id="proj-slider" min="1" max="25" value="10" step="1" oninput="atualizarProj()">
+          <div class="tabela-control-meta" id="futuro-intro">Arraste para ajustar o período.</div>
+        </div>
+      </div>
+      <div class="grafico-wrap">
+        <div class="grafico-title">Visão geral do seu investimento</div>
+        <div class="grafico-bars">
+          <div class="grafico-row">
+            <span class="grafico-label">Aportes anuais</span>
+            <div class="grafico-bar-wrap"><div class="grafico-bar aportes" id="bar-aportes"></div></div>
+            <span class="grafico-val" id="bar-aportes-val">—</span>
+          </div>
+          <div class="grafico-row">
+            <span class="grafico-label">Rentabilidade</span>
+            <div class="grafico-bar-wrap"><div class="grafico-bar rendimento" id="bar-rendimento"></div></div>
+            <span class="grafico-val" id="bar-rendimento-val">—</span>
+          </div>
+        </div>
+        <div class="grafico-total">
+          <span class="grafico-total-label">Total estimado bruto</span>
+          <span class="grafico-total-val" id="bar-total-val">—</span>
+        </div>
+      </div>
+      <div id="ir-econ-card" style="display:none;background:var(--blue-light);border-radius:12px;padding:12px 16px;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+        <span style="font-size:12px;color:var(--blue-mid);font-weight:500">Economia estimada no IR (<span id="ir-econ-aliq">—</span>)</span>
+        <span style="font-size:16px;font-weight:700;color:var(--blue)" id="ir-econ-val">—</span>
+      </div>
+      <div class="disclaimer compact">Valores brutos estimados. Rentabilidade de 10% a.a. com base no desempenho histórico do Viva Mais Previdência. Pode haver incidência de Imposto de Renda. Rentabilidade passada não é garantia de rentabilidade futura.</div>
+    </div>
+    <div class="result-actions two">
+      <button class="btn-back" onclick="mostrarRevelacao()">Voltar</button>
+      <button class="btn-primary blue" onclick="irParaResultado(2)">Próximo passo</button>
+    </div>
+  </div>
+
+  <!-- Passo 3: ação -->
+  <div class="result-step" id="result-step-2">
+    <div style="background:linear-gradient(160deg,#001f4d 0%,#003366 100%);border-radius:22px;padding:2rem 1.5rem;margin-bottom:1rem;text-align:center">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:.75rem">Sua decisão</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:26px;color:#fff;line-height:1.25;margin-bottom:.5rem">Agora é transformar simulação em decisão.</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.65);line-height:1.65;margin-bottom:1.5rem">Seu diagnóstico mostra que o PPR pode ser aplicado de forma estratégica. O próximo passo é falar com a Fusan e fazer o aporte no Viva Mais Previdência.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem">
+        <div style="background:rgba(255,255,255,.08);border-radius:12px;padding:12px">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.45);margin-bottom:5px">Você escolheu investir</div>
+          <div style="font-size:22px;font-weight:700;color:#fff" id="final-pct">100%</div>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border-radius:12px;padding:12px">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.45);margin-bottom:5px">Valor do aporte</div>
+          <div style="font-size:22px;font-weight:700;color:#fff" id="final-investido">—</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.5rem">
+        <div style="background:rgba(244,121,32,.15);border:1px solid rgba(244,121,32,.3);border-radius:12px;padding:12px">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.45);margin-bottom:5px">Economia estimada no IR</div>
+          <div style="font-size:22px;font-weight:700;color:#F47920" id="final-ir">—</div>
+        </div>
+        <div style="background:rgba(255,255,255,.12);border-radius:12px;padding:12px">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.45);margin-bottom:5px">Total acumulado estimado</div>
+          <div style="font-size:22px;font-weight:700;color:#fff" id="final-abono">—</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="wpp-btn" onclick="enviarWhats()">
+      <svg class="wpp-icon" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.555 4.122 1.524 5.853L.057 23.636a.75.75 0 0 0 .916.916l5.783-1.467A11.944 11.944 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.713 9.713 0 0 1-4.953-1.356l-.355-.211-3.676.932.948-3.567-.231-.368A9.712 9.712 0 0 1 2.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>
+      Falar com a Fusan e investir no Viva Mais
+    </button>
+    <div style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:8px">Você será direcionado ao WhatsApp da Fusan — (41) 3307-9222</div>
+
+    <button class="card-btn" onclick="irPara(8)" style="margin-top:.75rem">
+      📸 Card Instagram Fundoca
+    </button>
+
+    <div class="result-actions two" style="margin-top:10px">
+      <button class="btn-back" onclick="irParaResultado(1)">Voltar</button>
+      <button class="btn-back" onclick="reiniciar()">Refazer</button>
+    </div>
+  </div>
+</div>
+
+<!-- S8: ESCOLHA DA CIDADE -->
+<div class="screen" id="s8">
+  <div class="cidade-hero">
+    <div class="cidade-eyebrow">Fundações Sanepar</div>
+    <h2 class="cidade-title">Qual é a sua cidade?</h2>
+    <p class="cidade-sub">Escolha a cidade do evento para gerar o seu card.</p>
+    <div id="cidade-opts">
+      <button class="cidade-opt" onclick="selecionarCidade('telemaco',this)">📍 Telêmaco Borba</button>
+      <button class="cidade-opt" onclick="selecionarCidade('guarapuava',this)">📍 Guarapuava</button>
+      <button class="cidade-opt" onclick="selecionarCidade('uniao',this)">📍 União da Vitória</button>
+      <button class="cidade-opt" onclick="selecionarCidade('pontagrossa',this)">📍 Ponta Grossa</button>
+    </div>
+  </div>
+  <button class="btn-primary" id="btn-gerar-card" onclick="gerarCard()" disabled style="opacity:.4">Gerar meu card →</button>
+  <button class="btn-back" onclick="irPara(7)">← Voltar</button>
+</div>
+
+<!-- S9: CARD GERADO -->
+<div class="screen" id="s9">
+  <div class="card-preview-wrap">
+    <img id="card-img" src="" alt="Card Instagram Jornada do Cuidado">
+  </div>
+  <button class="share-btn instagram" onclick="compartilharCard()">
+    📲 Compartilhar
+  </button>
+  <div class="share-dica">Salve o card e publique nos seus stories do Instagram com a hashtag <strong>#JornadaDoCuidado</strong> 🎉</div>
+  <button class="btn-back" onclick="irPara(8)" style="margin-top:.5rem">← Escolher outra cidade</button>
+</div>
+
+</div><!-- /wrap -->
+
+<div class="footer">Fusan — Fundação Sanepar de Previdência e Assistência Social · Viva Mais Previdência</div>
+
+<script>
+var PPR_VALOR = 28482.56;
+
+var SONHO_SELECIONADO = null;
+var SONHOS = {
+  viagem:   'uma viagem inesquecível com a família',
+  imovel:   'a entrada de um imóvel próprio',
+  educacao: 'educação de qualidade para os filhos',
+  reserva:  'uma reserva que traz paz de espírito',
+  familia:  'ajudar alguém que você ama',
+  futuro:   'construir um futuro mais tranquilo'
+};
+
+var CIDADES = {
+  telemaco: { label: 'Telêmaco Borba',    img: 'https://raw.githubusercontent.com/eduardohf-crypto/Ativos-regional-Noroeste/main/Card_Fundoca_Tel%C3%AAmaco_Borba.jpg' },
+  guarapuava:{ label: 'Guarapuava',       img: 'https://raw.githubusercontent.com/eduardohf-crypto/Ativos-regional-Noroeste/main/Card_Fundoca_Guarapuava.jpg' },
+  uniao:    { label: 'União da Vitória',  img: 'https://raw.githubusercontent.com/eduardohf-crypto/Ativos-regional-Noroeste/main/Card_Fundoca_Uni%C3%A3o_da_Vit%C3%B3ria.jpg' },
+  pontagrossa:{ label: 'Ponta Grossa',    img: 'https://raw.githubusercontent.com/eduardohf-crypto/Ativos-regional-Noroeste/main/Card_Fundoca_Ponta_Grossa.jpg' }
+};
+
+var CIDADE_SELECIONADA = null;
+var WHATS = '554133079222';
+var TAXA = 0.10;
+var PCT = 100, IR_IDX = 4;
+var RESULT_STEP = 0;
+var resp = { q5: 0 };
+var IR_ALIQUOTAS = [0, 0.075, 0.15, 0.225, 0.275];
+var IR_LABELS = ['Isento', '7,5%', '15%', '22,5%', '27,5%'];
+
+function irAliq() { return IR_ALIQUOTAS[IR_IDX]; }
+function irAliqLabel() { return IR_LABELS[IR_IDX]; }
+function fmtNum(v) { return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function fmt(v) { return 'R$ ' + fmtNum(v); }
+
+// Anuidade — aporte anual recorrente com juros compostos
+function calcTotal(valorAporte, anos) {
+  return valorAporte * ((Math.pow(1 + TAXA, anos) - 1) / TAXA);
+}
+
+function irPara(n) {
+  document.querySelectorAll('.screen').forEach(function(el) { el.classList.remove('active'); });
+  document.getElementById('s' + n).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (n === 7) gerarResultado();
+}
+
+function reiniciar() {
+  resp = { q5: 0 };
+  PCT = 100; IR_IDX = 4;
+  document.querySelectorAll('.opt').forEach(function(o) { o.classList.remove('selected'); });
+  SONHO_SELECIONADO = null;
+  CIDADE_SELECIONADA = null;
+  irPara(0);
+}
+
+function selecionarOpt(q, val, el) {
+  document.getElementById('opts' + q).querySelectorAll('.opt').forEach(function(o) { o.classList.remove('selected'); });
+  el.classList.add('selected');
+  resp['q' + q] = val;
+  setTimeout(function() { irPara(6); }, 350);
+}
+
+function selecionarOptIR(idx, el) {
+  document.getElementById('opts6').querySelectorAll('.opt').forEach(function(o) { o.classList.remove('selected'); });
+  el.classList.add('selected');
+  IR_IDX = idx;
+  setTimeout(function() {
+    document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+    document.getElementById('s6b').classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 350);
+}
+
+function selecionarSonho(key, el) {
+  document.querySelectorAll('.sonho-opt').forEach(function(o) { o.classList.remove('selected'); });
+  el.classList.add('selected');
+  SONHO_SELECIONADO = key;
+  setTimeout(function() {
+    irPara(7);
+    gerarResultado();
+    mostrarRevelacao();
+  }, 350);
+}
+
+function mostrarRevelacao() {
+  PCT = 100;
+  var anos = parseInt(document.getElementById('proj-slider').value) || 10;
+  var valorInv = PPR_VALOR * (PCT / 100);
+  var total = calcTotal(valorInv, anos);
+
+  document.querySelectorAll('.result-step').forEach(function(el) { el.classList.remove('active'); el.style.display = 'none'; });
+  var rev = document.getElementById('result-step-rev');
+  rev.style.display = 'flex';
+  rev.style.flexDirection = 'column';
+
+  var label = document.getElementById('rev-label');
+  if (label) label.textContent = 'Com 100% do seu PPR investido por ' + anos + ' ' + (anos === 1 ? 'ano' : 'anos');
+
+  var totalEl = document.getElementById('rev-total');
+  if (totalEl) totalEl.textContent = fmt(total);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function gerarResultado() {
+  PCT = 100;
+  document.getElementById('pct-slider').value = 100;
+  var valorInv = PPR_VALOR * (PCT / 100);
+  document.getElementById('pct-num').textContent = PCT;
+  document.getElementById('pct-info').innerHTML = 'Equivale a <span id="pct-valor-reais">' + fmt(valorInv) + '</span>';
+
+  var banner = document.getElementById('perfil-banner');
+  var label = document.getElementById('perfil-label');
+  var text = document.getElementById('perfil-text');
+  var sonhoTexto = SONHO_SELECIONADO ? SONHOS[SONHO_SELECIONADO] : 'construir seu futuro';
+  var q5 = resp.q5 || 2;
+
+  if (q5 <= 2) {
+    banner.className = 'perfil-banner critico';
+    label.textContent = 'Atenção — o PPR some sem deixar rastro';
+    text.textContent = 'O PPR vai embora sem um destino claro. Com planejamento simples, esse dinheiro pode trabalhar por você e realizar ' + sonhoTexto + '.';
+  } else if (q5 === 3) {
+    banner.className = 'perfil-banner atencao';
+    label.textContent = 'Quase lá — ainda há espaço para melhorar';
+    text.textContent = 'Você já pensa em guardar parte do PPR. Imagine se todo esse valor fosse investido no Viva Mais Previdência em direção a ' + sonhoTexto + '. O resultado seria muito diferente.';
+  } else {
+    banner.className = 'perfil-banner positivo';
+    label.textContent = 'Parabéns — você já pensa como investidor';
+    text.textContent = 'Você já tem um plano para o PPR. Agora é formalizar no Viva Mais Previdência e ver os juros compostos trabalhando por você — e por ' + sonhoTexto + '.';
+  }
+
+  document.getElementById('proj-slider').value = 10;
+  atualizarPct();
+  atualizarProj();
+  atualizarResumoResultado();
+
+  var el = document.getElementById('result-abono-anual');
+  if (el) el.textContent = fmt(PPR_VALOR);
+}
+
+function irParaResultado(idx) {
+  RESULT_STEP = Math.max(1, Math.min(idx, 2));
+  document.querySelectorAll('.result-step').forEach(function(el) { el.classList.remove('active'); el.style.display = 'none'; });
+  var rev = document.getElementById('result-step-rev');
+  if (rev) rev.style.display = 'none';
+  var atual = document.getElementById('result-step-' + RESULT_STEP);
+  if (atual) { atual.style.display = 'block'; atual.classList.add('active'); }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function atualizarPct() {
+  PCT = parseInt(document.getElementById('pct-slider').value);
+  var valorInv = PPR_VALOR * (PCT / 100);
+  var pctNum = document.getElementById('pct-num');
+  var pctInfo = document.getElementById('pct-info');
+  if (pctNum) pctNum.textContent = PCT;
+  if (pctInfo) pctInfo.innerHTML = 'Equivale a <span id="pct-valor-reais">' + fmt(valorInv) + '</span>';
+  atualizarTabelaCusto();
+  atualizarResumoResultado();
+}
+
+function atualizarProj() {
+  var anos = parseInt(document.getElementById('proj-slider').value) || 10;
+  var el = document.getElementById('proj-anos-num');
+  if (el) el.textContent = anos;
+  var fi = document.getElementById('futuro-intro');
+  if (fi) fi.textContent = 'Simulação por ' + anos + ' ' + (anos === 1 ? 'ano' : 'anos') + '.';
+  atualizarTabelaCusto();
+  atualizarResumoResultado();
+}
+
+function atualizarTabelaCusto() {
+  var anos = parseInt(document.getElementById('proj-slider').value) || 10;
+  var valorAporte = PPR_VALOR * (PCT / 100);
+  var total = calcTotal(valorAporte, anos);
+  var totalAportes = valorAporte * anos;
+  var rendimento = total - totalAportes;
+  var aliq = irAliq();
+  var economiaIR = valorAporte * aliq * anos;
+
+  var custo = document.getElementById('custo-label');
+  if (custo) custo.textContent = 'Com ' + PCT + '% do seu PPR (' + fmt(valorAporte) + ') investido por ' + anos + ' ' + (anos === 1 ? 'ano' : 'anos') + ', a estimativa seria:';
+
+  var barAp = document.getElementById('bar-aportes');
+  var barRend = document.getElementById('bar-rendimento');
+  if (barAp && barRend) {
+    setTimeout(function() {
+      barAp.style.width = Math.round((totalAportes / total) * 100) + '%';
+      barRend.style.width = Math.round((rendimento / total) * 100) + '%';
+    }, 100);
+    document.getElementById('bar-aportes-val').textContent = fmt(totalAportes);
+    document.getElementById('bar-rendimento-val').textContent = fmt(rendimento);
+    document.getElementById('bar-total-val').textContent = fmt(total);
+
+    var irCard = document.getElementById('ir-econ-card');
+    if (irCard) {
+      if (aliq > 0) {
+        irCard.style.display = 'flex';
+        document.getElementById('ir-econ-aliq').textContent = irAliqLabel();
+        document.getElementById('ir-econ-val').textContent = '+' + fmt(economiaIR);
+      } else {
+        irCard.style.display = 'none';
+      }
+    }
+  }
+}
+
+function atualizarResumoResultado() {
+  var valorInv = PPR_VALOR * (PCT / 100);
+  var anos = parseInt(document.getElementById('proj-slider').value) || 10;
+  var totalAcumulado = calcTotal(valorInv, anos);
+  var economiaIR = valorInv * irAliq() * anos;
+
+  var fp = document.getElementById('final-pct');
+  if (fp) fp.textContent = PCT + '%';
+  var fi = document.getElementById('final-investido');
+  if (fi) fi.textContent = fmt(valorInv);
+  var fir = document.getElementById('final-ir');
+  if (fir) fir.textContent = irAliq() > 0 ? fmt(economiaIR) : 'Isento';
+  var fa = document.getElementById('final-abono');
+  if (fa) fa.textContent = fmt(totalAcumulado);
+}
+
+function enviarWhats() {
+  window.open('https://wa.me/' + WHATS + '?text=' + encodeURIComponent('Olá! Fiz o Diagnóstico do PPR e quero investir no Viva Mais Previdência. Pode me ajudar?'), '_blank');
+}
+
+function selecionarCidade(key, el) {
+  document.querySelectorAll('.cidade-opt').forEach(function(o) { o.classList.remove('selected'); });
+  el.classList.add('selected');
+  CIDADE_SELECIONADA = key;
+  var btn = document.getElementById('btn-gerar-card');
+  btn.disabled = false;
+  btn.style.opacity = '1';
+}
+
+function gerarCard() {
+  if (!CIDADE_SELECIONADA) return;
+  var cidade = CIDADES[CIDADE_SELECIONADA];
+  document.getElementById('card-img').src = cidade.img;
+  irPara(9);
+}
+
+function downloadCard() {
+  if (!CIDADE_SELECIONADA) return;
+  var cidade = CIDADES[CIDADE_SELECIONADA];
+  var a = document.createElement('a');
+  a.href = cidade.img;
+  a.download = 'Card_Fundoca_' + cidade.label.replace(/ /g, '_') + '.jpg';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function compartilharCard() {
+  if (!CIDADE_SELECIONADA) return;
+  var cidade = CIDADES[CIDADE_SELECIONADA];
+  if (navigator.share) {
+    fetch(cidade.img)
+      .then(function(r) { return r.blob(); })
+      .then(function(blob) {
+        var file = new File([blob], 'Card_Fundoca_' + cidade.label + '.jpg', { type: 'image/jpeg' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          return navigator.share({
+            files: [file],
+            title: 'Jornada do Cuidado e da Conexão',
+            text: 'Participei da Jornada do Cuidado promovida pelas Fundações Sanepar! #JornadaDoCuidado #FundaçõesSanepar'
+          });
+        } else {
+          return navigator.share({
+            title: 'Jornada do Cuidado e da Conexão',
+            text: 'Participei da Jornada do Cuidado promovida pelas Fundações Sanepar! #JornadaDoCuidado #FundaçõesSanepar'
+          });
+        }
+      })
+      .catch(function() { downloadCard(); });
+  } else {
+    downloadCard();
+  }
+}
+</script>
+</body>
+</html>
